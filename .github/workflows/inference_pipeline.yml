@@ -1,0 +1,39 @@
+# .github/workflows/inference_pipeline.yml
+name: Inference Pipeline
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'inference_pipeline.ipynb'
+      - 'inference_pipeline.py'
+      - 'requirements.txt'
+  schedule:
+    # every day at 4 AM UTC (one hour after feature engineering)
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+jobs:
+  inference:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛎 Checkout code
+        uses: actions/checkout@v3
+
+      - name: 🔧 Setup Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: 📦 Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 🔍 Run inference pipeline
+        run: |
+          python inference_pipeline.py
+        # or with papermill:
+        # run: |
+        #   pip install papermill
+        #   papermill inference_pipeline.ipynb output/inference_output.ipynb

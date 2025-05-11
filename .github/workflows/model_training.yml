@@ -1,0 +1,39 @@
+# .github/workflows/model_training.yml
+name: Model Training Pipeline
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'model_training_pipeline.ipynb'
+      - 'model_training_pipeline.py'
+      - 'requirements.txt'
+  schedule:
+    # every day at 5 AM UTC (after inference)
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+
+jobs:
+  train_models:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🛎 Checkout code
+        uses: actions/checkout@v3
+
+      - name: 🔧 Setup Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: 📦 Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 🏋️ Train and log models
+        run: |
+          python training_pipeline.py
+        # or with papermill:
+        # run: |
+        #   pip install papermill
+        #   papermill model_training_pipeline.ipynb output/train_output.ipynb
